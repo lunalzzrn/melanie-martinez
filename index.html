@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Civilização Esquecida</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2e1a47 0%, #110924 100%);
+            color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .game-container {
+            background-color: rgba(45, 30, 71, 0.85);
+            border: 2px solid #a855f7;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 650px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            backdrop-filter: blur(8px);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: #d8b4fe;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .story-text {
+            font-size: 1.15rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: #e5e7eb;
+            min-height: 100px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn {
+            background-color: #6b21a8;
+            color: white;
+            border: 1px solid #c084fc;
+            padding: 14px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            background-color: #a855f7;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(168, 85, 247, 0.3);
+        }
+
+        .btn-restart {
+            background-color: #10b981;
+            border-color: #34d399;
+        }
+        
+        .btn-restart:hover {
+            background-color: #059669;
+            box-shadow: 0 6px 12px rgba(16, 185, 129, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <h1>Aventura no Brasil</h1>
+    <p id="text" class="story-text">Carregando história...</p>
+    <div id="options" class="options-container"></div>
+</div>
+
+<script>
+    // Toda a estrutura do fluxograma mapeada em um objeto JavaScript
+    const storyNodes = {
+        0: {
+            text: "Você encontra um diário antigo no sótão do seu avô. Entre as páginas amareladas, há um mapa que aponta para uma civilização esquecida no Brasil. Onde você começa sua busca?",
+            options: [
+                { text: "Rio de Janeiro", nextNode: 1 },
+                { text: "Pernambuco", nextNode: 2 }
+            ]
+        },
+        1: {
+            text: "No Rio, o diário menciona que a entrada da cidade está protegida por um gigante de pedra. Você sobe a Trilha da Pedra da Gávea e encontra um portal esculpido na rocha.",
+            options: [
+                { text: "Escalar a face do 'Imperador' para achar o mecanismo.", nextNode: 3 },
+                { text: "Esperar o pôr do sol para ver onde a sombra aponta.", nextNode: 4 }
+            ]
+        },
+        2: {
+            text: "Em Pernambuco, o diário fala de uma cidade submersa perto da Ilha de Itamaracá. Você contrata um jangadeiro que te leva até um ponto onde o mar brilha com uma luz estranha...",
+            options: [
+                { text: "Mergulhar nas águas profundas usando o equipamento antigo do diário.", nextNode: 5 },
+                { text: "Procurar o 'Guardião do Farol' para pedir permissão.", nextNode: 6 }
+            ]
+        },
+        3: {
+            text: "Você encontra uma alavanca de ouro! A rocha se abre e você descobre a Cidade de Cristal escondida sob o oceano.\n\n[VITÓRIA!]",
+            options: [{ text: "Jogar Novamente", nextNode: 0, restart: true }]
+        },
+        4: {
+            text: "A sombra aponta para o mar, mas a maré sobe e apaga as pistas. Você volta para casa apenas com uma bela foto.\n\n[TENTE NOVAMENTE]",
+            options: [{ text: "Jogar Novamente", nextNode: 0, restart: true }]
+        },
+        5: {
+            text: "Você atravessa um túnel de corais e emerge em uma bolha de ar gigante: a Atlantis Brasileira, cheia de estátuas de barro que ganham vida.\n\n[VITÓRIA!]",
+            options: [{ text: "Jogar Novamente", nextNode: 0, restart: true }]
+        },
+        6: {
+            text: "O Guardião diz que você não está pronto e te dá um amuleto. A aventura continua, mas a cidade permanece oculta por enquanto.\n\n[CONTINUA...]",
+            options: [{ text: "Jogar Novamente", nextNode: 0, restart: true }]
+        }
+    };
+
+    function showNode(nodeIndex) {
+        const node = storyNodes[nodeIndex];
+        const textElement = document.getElementById('text');
+        const optionsContainer = document.getElementById('options');
+
+        // Atualiza o texto da história (substituindo quebras de linha por tags <br>)
+        textElement.innerHTML = node.text.replace(/\n/g, '<br>');
+
+        // Limpa os botões antigos
+        optionsContainer.innerHTML = '';
+
+        // Cria os novos botões de escolha
+        node.options.forEach(option => {
+            const button = document.createElement('button');
+            button.innerText = option.text;
+            button.classList.add('btn');
+            
+            // Se for botão de reiniciar, aplica uma cor diferente
+            if (option.restart) {
+                button.classList.add('btn-restart');
+            }
+
+            button.onclick = () => showNode(option.nextNode);
+            optionsContainer.appendChild(button);
+        });
+    }
+
+    // Inicia o jogo no passo-0
+    showNode(0);
+</script>
+
+</body>
+</html>
